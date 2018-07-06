@@ -1,0 +1,80 @@
+version: '2'
+
+services:
+    redis1:
+        container_name: "redis1"
+        image: redis-master
+        build: ./images/redis-master
+        expose:
+            - "6379"
+            - "10000"
+        links:
+            - redis2
+            - redis3
+        volumes:
+            - ./data/redis1:/data
+    redis2:
+        container_name: "redis2"
+        image: redis-slave
+        build: ./images/redis-slave
+        expose:
+            - "6379"
+            - "10000"
+        volumes:
+            - ./data/redis2:/data
+    redis3:
+        container_name: "redis3"
+        image: redis-slave
+        build: ./images/redis-slave
+        expose:
+            - "6379"
+            - "10000"
+        volumes:
+            - ./data/redis3:/data
+    sentinel1:
+        container_name: "sentinel1"
+        image: redis-sentinel
+        build: ./images/redis-sentinel
+        expose:
+            - "26000"
+        links:
+            - redis1
+            - redis2
+            - redis3
+            - sentinel2
+            - sentinel3
+    sentinel2:
+        container_name: "sentinel2"
+        image: redis-sentinel
+        build: ./images/redis-sentinel
+        expose:
+            - "26000"
+        links:
+            - redis1
+            - redis2
+            - redis3
+    sentinel3:
+        container_name: "sentinel3"
+        image: redis-sentinel
+        build: ./images/redis-sentinel
+        expose:
+            - "26000"
+        links:
+            - redis1
+            - redis2
+            - redis3
+    haproxy:
+        container_name: "haproxy"
+        image: haproxy
+        build: ./images/haproxy
+        ports:
+            - "6379:6379"
+            - "8080:8080"
+        environment:
+            EXTRA_GLOBAL_SETTINGS: debug
+        links:
+            - redis1
+            - redis2
+            - redis3
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
