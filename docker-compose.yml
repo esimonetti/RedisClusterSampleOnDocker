@@ -13,6 +13,9 @@ services:
             - redis3
         volumes:
             - ./data/redis1:/data
+        networks:
+            haredisnet:
+                ipv4_address: 10.100.0.1
     redis2:
         container_name: "redis2"
         image: redis-slave
@@ -22,6 +25,9 @@ services:
             - "10000"
         volumes:
             - ./data/redis2:/data
+        networks:
+            haredisnet:
+                ipv4_address: 10.100.0.2
     redis3:
         container_name: "redis3"
         image: redis-slave
@@ -31,6 +37,9 @@ services:
             - "10000"
         volumes:
             - ./data/redis3:/data
+        networks:
+            haredisnet:
+                ipv4_address: 10.100.0.3
     sentinel1:
         container_name: "sentinel1"
         image: redis-sentinel
@@ -43,6 +52,8 @@ services:
             - redis3
             - sentinel2
             - sentinel3
+        networks:
+            haredisnet:
     sentinel2:
         container_name: "sentinel2"
         image: redis-sentinel
@@ -53,6 +64,8 @@ services:
             - redis1
             - redis2
             - redis3
+        networks:
+            haredisnet:
     sentinel3:
         container_name: "sentinel3"
         image: redis-sentinel
@@ -63,6 +76,8 @@ services:
             - redis1
             - redis2
             - redis3
+        networks:
+            haredisnet:
     haproxy:
         container_name: "haproxy"
         image: haproxy
@@ -76,5 +91,18 @@ services:
             - redis1
             - redis2
             - redis3
+            - sentinel1
+            - sentinel2
+            - sentinel3
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            haredisnet:
+
+networks:
+    haredisnet:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 10.100.0.0/24
+                  gateway: 10.100.0.244
