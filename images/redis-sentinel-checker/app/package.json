@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "ioredis": "^3.2.2",
+    "shuffle-array": "^1.0.1"
+  }
+}

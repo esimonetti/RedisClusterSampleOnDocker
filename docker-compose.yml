@@ -7,7 +7,6 @@ services:
         build: ./images/redis-master
         expose:
             - "6379"
-            - "10000"
         links:
             - redis2
             - redis3
@@ -22,7 +21,6 @@ services:
         build: ./images/redis-slave
         expose:
             - "6379"
-            - "10000"
         volumes:
             - ./data/redis2:/data
         networks:
@@ -34,7 +32,6 @@ services:
         build: ./images/redis-slave
         expose:
             - "6379"
-            - "10000"
         volumes:
             - ./data/redis3:/data
         networks:
@@ -44,8 +41,6 @@ services:
         container_name: "sentinel1"
         image: redis-sentinel
         build: ./images/redis-sentinel
-        expose:
-            - "26000"
         links:
             - redis1
             - redis2
@@ -58,8 +53,6 @@ services:
         container_name: "sentinel2"
         image: redis-sentinel
         build: ./images/redis-sentinel
-        expose:
-            - "26000"
         links:
             - redis1
             - redis2
@@ -70,12 +63,22 @@ services:
         container_name: "sentinel3"
         image: redis-sentinel
         build: ./images/redis-sentinel
-        expose:
-            - "26000"
         links:
             - redis1
             - redis2
             - redis3
+        networks:
+            haredisnet:
+    checker:
+        container_name: "checker"
+        image: redis-sentinel-checker
+        build: ./images/redis-sentinel-checker
+        ports:
+            - "9999:9999"
+        links:
+            - sentinel1
+            - sentinel2
+            - sentinel3
         networks:
             haredisnet:
     haproxy:
